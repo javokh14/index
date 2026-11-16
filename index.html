@@ -1,0 +1,1883 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EduSmart — Zamonaviy Intellektual Ta'lim Platformasi</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* 100% PROPORSIONAL, TINIQ RASM FON */
+        .crystal-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            z-index: -20;
+            filter: contrast(1.05) brightness(0.9);
+            transition: background-image 0.4s ease-in-out;
+        }
+
+        /* ANIMATSIYALI VIDEO FON (MP4 / WebM) */
+        .crystal-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -20;
+            filter: contrast(1.05) brightness(0.9);
+        }
+
+        .bg-veil {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 50% 35%, rgba(13, 9, 36, 0.4) 0%, rgba(9, 6, 25, 0.8) 100%);
+            z-index: -10;
+            pointer-events: none;
+        }
+
+        .cyber-card {
+            background: rgba(18, 13, 44, 0.72);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(168, 85, 247, 0.28);
+            box-shadow: 0 20px 45px -15px rgba(0, 0, 0, 0.65), 0 0 35px -10px rgba(168, 85, 247, 0.22);
+        }
+
+        .cyber-nav {
+            background: rgba(12, 8, 32, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(168, 85, 247, 0.25);
+            box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-neon {
+            background: linear-gradient(135deg, #7928ca 0%, #9333ea 50%, #c026d3 100%);
+            box-shadow: 0 10px 25px -5px rgba(168, 85, 247, 0.55);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .btn-neon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 28px -4px rgba(217, 70, 239, 0.7);
+            filter: brightness(1.12);
+        }
+        .btn-neon:active { transform: scale(0.97); }
+
+        .option-choice:has(input:checked) {
+            border-color: #d946ef !important;
+            background: rgba(168, 85, 247, 0.28) !important;
+            box-shadow: 0 0 22px rgba(217, 70, 239, 0.4);
+        }
+
+        .motion-fade {
+            animation: modernFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes modernFade {
+            from { opacity: 0; transform: scale(0.98) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        ::-webkit-scrollbar { width: 7px; height: 7px; }
+        ::-webkit-scrollbar-track { background: rgba(12, 8, 32, 0.7); }
+        ::-webkit-scrollbar-thumb { background: rgba(168, 85, 247, 0.45); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(217, 70, 239, 0.8); }
+
+        iframe#netlify-drawer, div[data-netlify-drawer], .netlify-badge {
+            display: none !important;
+            visibility: hidden !important;
+        }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col justify-between selection:bg-fuchsia-600 selection:text-white relative overflow-x-hidden">
+
+    <!-- Dinamik Fon: Rasm va Video -->
+    <div id="bg-image-layer" class="crystal-bg"></div>
+    <video id="bg-video-layer" class="crystal-video hidden" autoplay loop muted playsinline></video>
+    <div class="bg-veil"></div>
+
+    <!-- Toast Xabar -->
+    <div id="toast" class="fixed top-4 right-4 sm:top-5 sm:right-5 z-50 transform transition-all duration-300 translate-y-[-120px] opacity-0 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl font-bold text-xs sm:text-sm pointer-events-none border max-w-sm sm:max-w-md"></div>
+
+    <!-- Spinner Modali -->
+    <div id="loadingModal" class="fixed inset-0 bg-slate-950/65 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+        <div class="cyber-card px-8 py-7 rounded-3xl flex flex-col items-center gap-4 border border-fuchsia-500/40 shadow-2xl">
+            <div class="w-11 h-11 border-4 border-fuchsia-500/30 border-t-fuchsia-400 rounded-full animate-spin"></div>
+            <p id="loadingText" class="font-black text-fuchsia-200 text-xs tracking-wider uppercase">Bajarilmoqda...</p>
+        </div>
+    </div>
+
+    <!-- SAYT O'CHIRILGANDA TO'LIQ BLUR EKRAN -->
+    <div id="site-disabled-screen" class="fixed inset-0 bg-slate-950/92 backdrop-blur-3xl z-50 flex items-center justify-center p-4 hidden">
+        <div class="max-w-md w-full cyber-card p-8 sm:p-10 rounded-[38px] text-center space-y-6 shadow-2xl border border-rose-500/40 motion-fade">
+            <div class="w-20 h-20 mx-auto rounded-3xl bg-rose-500/10 text-rose-400 flex items-center justify-center shadow-inner border border-rose-500/30">
+                <i data-lucide="shield-alert" class="w-10 h-10"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-black text-white tracking-tight">Sayt Vaqtincha To'xtatildi</h2>
+                <p id="site-disabled-reason" class="text-sm font-semibold text-rose-200 mt-2 p-4 bg-rose-950/30 rounded-2xl border border-rose-500/30 leading-relaxed"></p>
+            </div>
+            <p class="text-[11px] font-black uppercase tracking-widest text-slate-400">Tez orada ishga tushiriladi</p>
+        </div>
+    </div>
+
+    <!-- SAYT YOQILGANDA TEZKOR BILDIRISHNOMA -->
+    <div id="site-welcome-toast" class="fixed inset-0 bg-slate-950/50 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="cyber-card px-8 py-6 rounded-3xl text-center space-y-2 border border-emerald-400/40 shadow-2xl motion-fade">
+            <div class="w-12 h-12 mx-auto rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-1 border border-emerald-500/30">
+                <i data-lucide="zap" class="w-7 h-7"></i>
+            </div>
+            <h3 class="text-xl font-black text-white">Sayt Ishga Tushdi!</h3>
+            <p class="text-xs font-bold text-emerald-300">Tizim to'liq faol holatda.</p>
+        </div>
+    </div>
+
+    <!-- Asosiy Navigatsiya -->
+    <header class="sticky top-0 z-40 cyber-nav">
+        <div class="max-w-6xl mx-auto px-3 sm:px-6 h-18 sm:h-20 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5 sm:gap-3.5 cursor-pointer select-none group" onclick="switchTab('student')">
+                <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr from-purple-600 via-fuchsia-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-fuchsia-500/30 group-hover:scale-105 transition duration-300">
+                    <i data-lucide="graduation-cap" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-black text-xl sm:text-2xl tracking-tight bg-gradient-to-r from-white via-fuchsia-200 to-purple-300 bg-clip-text text-transparent">EduSmart</span>
+                    <span class="text-[8px] sm:text-[9px] font-black tracking-widest text-fuchsia-400 uppercase -mt-0.5">Akademik Platforma</span>
+                </div>
+            </div>
+
+            <nav class="flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 bg-slate-950/70 border border-purple-500/25 rounded-2xl overflow-x-auto max-w-[62vw] sm:max-w-none">
+                <button onclick="switchTab('student')" id="nav-student" class="nav-btn px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-black bg-fuchsia-600 text-white shadow-md shadow-fuchsia-500/25 transition flex items-center gap-1.5 whitespace-nowrap">
+                    <i data-lucide="user" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                    <span>O'quvchi</span>
+                </button>
+                <button onclick="switchTab('teacher-create')" id="nav-teacher-create" class="nav-btn px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 whitespace-nowrap">
+                    <i data-lucide="plus-circle" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                    <span class="hidden md:inline">Test Yaratish</span>
+                </button>
+                <button onclick="switchTab('teacher-results')" id="nav-teacher-results" class="nav-btn px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 whitespace-nowrap">
+                    <i data-lucide="bar-chart-3" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                    <span class="hidden md:inline">Natijalar</span>
+                </button>
+                <button onclick="switchTab('vault')" id="nav-vault" class="nav-btn px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 whitespace-nowrap">
+                    <i data-lucide="lock" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                    <span class="hidden md:inline">Seyf</span>
+                </button>
+                <button onclick="switchTab('admin-panel')" id="nav-admin-panel" class="nav-btn px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl text-xs font-black text-rose-300 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 transition flex items-center gap-1.5 whitespace-nowrap">
+                    <span class="w-2 h-2 rounded-full bg-rose-400 animate-ping"></span>
+                    <span>Admin</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-3.5 sm:px-6 py-6 sm:py-10 flex-grow w-full">
+
+        <!-- 1. O'QUVCHI MAYDONI -->
+        <section id="tab-student" class="tab-content block motion-fade">
+            <div id="student-login-box" class="max-w-md mx-auto cyber-card p-6 sm:p-10 rounded-[32px] sm:rounded-[40px] space-y-6">
+                <div class="text-center space-y-2">
+                    <div class="w-14 h-14 mx-auto rounded-3xl bg-fuchsia-500/10 text-fuchsia-400 flex items-center justify-center shadow-inner border border-fuchsia-500/30 mb-2">
+                        <i data-lucide="book-open" class="w-7 h-7"></i>
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Topshiriqqa Kirish</h2>
+                    <p class="text-slate-300 text-xs font-semibold">Ismingiz, sinfingiz va test kodini tanlang.</p>
+                </div>
+
+                <form id="student-entry-form" onsubmit="requestStudentAccess(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-[11px] font-black text-fuchsia-300 uppercase tracking-wider mb-1.5">Ism va Familiya</label>
+                        <input type="text" id="stu-name" required placeholder="Masalan: Javohir Maxramov" class="w-full px-4 py-3.5 rounded-2xl border border-purple-500/30 focus:outline-none focus:border-fuchsia-400 font-bold text-sm bg-slate-950/60 text-white placeholder-slate-500 transition shadow-inner">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black text-fuchsia-300 uppercase tracking-wider mb-1.5">Sinfni Tanlang (5 — 10)</label>
+                        <select id="stu-class" required class="w-full px-4 py-3.5 rounded-2xl border border-purple-500/30 focus:outline-none focus:border-fuchsia-400 font-black text-sm bg-slate-950 text-fuchsia-200 shadow-inner cursor-pointer">
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black text-fuchsia-300 uppercase tracking-wider mb-1.5">Test Kodi</label>
+                        <input type="text" id="stu-code" required placeholder="Masalan: 8340" maxlength="10" class="w-full px-4 py-3.5 rounded-2xl border border-purple-500/30 focus:outline-none focus:border-fuchsia-400 font-black text-fuchsia-400 tracking-widest text-center text-xl uppercase bg-slate-950/60 transition font-mono shadow-inner">
+                    </div>
+                    <button type="submit" class="w-full py-4 btn-neon text-white rounded-2xl font-black text-sm tracking-wide flex items-center justify-center gap-2 mt-2">
+                        <span>Testga Kirish</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- JONLI KUTISH EKRANI -->
+            <div id="student-waiting-box" class="hidden max-w-md mx-auto cyber-card p-6 sm:p-10 rounded-[32px] sm:rounded-[40px] text-center space-y-6 shadow-2xl motion-fade">
+                <div class="relative w-20 h-20 mx-auto flex items-center justify-center">
+                    <div class="absolute inset-0 border-4 border-fuchsia-500/20 border-t-fuchsia-400 rounded-full animate-spin"></div>
+                    <i data-lucide="hourglass" class="w-8 h-8 text-fuchsia-400 animate-pulse"></i>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-black text-white tracking-tight">Admin Tasdiqlashi Kutilmoqda...</h3>
+                    <p class="text-xs font-semibold text-slate-300 mt-2 leading-relaxed">
+                        Topshiriqqa kirishingiz uchun ustozingiz tasdiqlashi lozim. Sahifani yopmang!
+                    </p>
+                </div>
+
+                <div id="waiting-status-alert" class="hidden p-4 rounded-2xl text-xs font-black leading-relaxed"></div>
+
+                <div class="p-4 bg-slate-950/60 rounded-2xl border border-purple-500/20 text-xs font-bold text-slate-300 space-y-2">
+                    <p class="flex justify-between"><span>O'quvchi:</span> <strong id="wait-name" class="text-white font-black">...</strong></p>
+                    <p class="flex justify-between"><span>Sinf:</span> <strong id="wait-class" class="text-white font-black">...</strong></p>
+                    <p class="flex justify-between"><span>Test Kodi:</span> <strong id="wait-code" class="text-fuchsia-400 font-mono font-black">...</strong></p>
+                </div>
+                <button onclick="cancelStudentWait()" class="text-xs font-black text-rose-400 hover:text-rose-300 transition underline underline-offset-4">Bekor qilish / Qayta kiritish</button>
+            </div>
+
+            <!-- Imtihon maydoni -->
+            <div id="student-exam-box" class="hidden max-w-3xl mx-auto space-y-6">
+                <div class="cyber-card p-5 sm:p-7 rounded-[28px] sm:rounded-[36px] flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <span id="exam-badge" class="px-3 py-1 bg-fuchsia-500/20 text-fuchsia-300 rounded-full font-black text-[10px] uppercase tracking-wider border border-fuchsia-500/30">Test</span>
+                        <h3 id="exam-title" class="text-xl sm:text-2xl font-black text-white mt-1.5">Mavzu Nomi</h3>
+                        <p id="exam-meta" class="text-xs font-semibold text-slate-300 mt-0.5">Fan: ... | Ustoz: ...</p>
+                    </div>
+                    <div id="exam-timer-box" class="flex items-center gap-2.5 bg-amber-500/10 text-amber-300 px-5 py-2.5 rounded-2xl font-black text-base border border-amber-500/30 shadow-sm">
+                        <i data-lucide="clock" class="w-4 h-4 animate-pulse text-amber-400"></i>
+                        <span id="exam-timer-text" class="tracking-widest font-mono">--:--</span>
+                    </div>
+                </div>
+
+                <div id="test-questions-wrapper" class="space-y-4"></div>
+
+                <div id="essay-wrapper" class="hidden cyber-card p-5 sm:p-8 rounded-[28px] sm:rounded-[36px] space-y-4">
+                    <div class="p-4 bg-purple-950/40 rounded-2xl border border-purple-500/30 text-sm">
+                        <span class="font-extrabold text-fuchsia-300 block mb-1">Mavzu yo'riqnomasi:</span>
+                        <p id="essay-instructions" class="text-slate-200 font-medium leading-relaxed"></p>
+                    </div>
+                    <textarea id="essay-text" rows="12" placeholder="Fikringizni shu yerga erkin va to'liq yozing..." class="w-full p-4 sm:p-5 rounded-2xl border border-purple-500/30 focus:outline-none focus:border-fuchsia-400 text-sm font-medium leading-relaxed bg-slate-950/70 text-white placeholder-slate-500"></textarea>
+                    <div class="flex items-center justify-between text-xs font-black text-slate-400">
+                        <span>Belgilar: <strong id="essay-char-count" class="text-white font-mono">0</strong></span>
+                        <span>So'zlar: <strong id="essay-word-count" class="text-fuchsia-400 font-mono text-sm">0</strong></span>
+                    </div>
+                </div>
+
+                <button onclick="submitStudentWork()" class="w-full py-4.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-500 text-white rounded-2xl font-black text-base tracking-wide transition shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-2.5">
+                    <span>Topshirish</span>
+                    <i data-lucide="check" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Natija ekrani -->
+            <div id="student-result-box" class="hidden max-w-md mx-auto cyber-card p-6 sm:p-10 rounded-[32px] sm:rounded-[40px] text-center space-y-6 shadow-2xl">
+                <div class="w-20 h-20 mx-auto rounded-3xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shadow-inner border border-emerald-500/30">
+                    <i data-lucide="check-circle" class="w-10 h-10"></i>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-black text-white tracking-tight">Topshiriq Yakunlandi!</h3>
+                    <p id="res-student-info" class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1.5"></p>
+                </div>
+                <div class="p-6 bg-emerald-950/40 rounded-3xl border border-emerald-500/30 space-y-2">
+                    <p class="text-base font-black text-emerald-200 leading-snug">Siz Testni To'g'ri ishladingiz!</p>
+                    <p class="text-xs font-bold text-emerald-400 leading-relaxed">Natijangizni Ustozingizdan olasiz.</p>
+                </div>
+                <button onclick="location.reload()" class="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-slate-200 rounded-2xl font-black text-xs uppercase tracking-wider transition">Bosh sahifaga qaytish</button>
+            </div>
+        </section>
+
+        <!-- 2. USTOZ: TEST YARATISH -->
+        <section id="tab-teacher-create" class="tab-content hidden max-w-2xl mx-auto space-y-6 motion-fade">
+            <div id="teacher-create-auth-box" class="max-w-md mx-auto cyber-card p-6 sm:p-10 rounded-[32px] sm:rounded-[40px] space-y-6 shadow-xl text-center">
+                <div class="w-14 h-14 mx-auto rounded-3xl bg-fuchsia-500/10 text-fuchsia-400 flex items-center justify-center border border-fuchsia-500/30">
+                    <i data-lucide="lock" class="w-7 h-7"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-black text-white">Ustoz Maydoni</h2>
+                    <p class="text-slate-300 text-xs font-semibold mt-1">Test yaratish uchun tizim parolini kiriting.</p>
+                </div>
+                <form onsubmit="handleTeacherAuth(event, 'create')" class="space-y-4">
+                    <input type="password" id="tc-auth-pin" required placeholder="Parolni kiriting..." class="w-full px-4 py-3.5 rounded-2xl border border-purple-500/30 text-center tracking-widest text-2xl font-black focus:outline-none focus:border-fuchsia-400 bg-slate-950/80 text-fuchsia-300">
+                    <button type="submit" class="w-full py-4 btn-neon text-white rounded-2xl font-black text-sm transition">Kirish</button>
+                </form>
+            </div>
+
+            <div id="teacher-create-content-box" class="hidden cyber-card p-6 sm:p-10 rounded-[32px] sm:rounded-[40px] space-y-6">
+                <div>
+                    <span class="px-3 py-1 bg-fuchsia-500/20 text-fuchsia-300 rounded-full font-black text-[10px] uppercase tracking-wider border border-fuchsia-500/30">Ustoz Studiyasi</span>
+                    <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight mt-1.5">Yangi Topshiriq Yaratish</h2>
+                    <p class="text-slate-300 text-xs font-semibold mt-1">Qo'lda tuzish, AI orqali avtomatik generatsiya yoki insho topshirig'i.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-black text-fuchsia-300 uppercase tracking-wider mb-1.5">Ustoz Ism-Familiyasi</label>
+                        <input type="text" id="tc-teacher" placeholder="Masalan: Javohir Maxramov" class="w-full px-4 py-3 rounded-2xl border border-purple-500/30 text-sm font-bold bg-slate-950/60 text-white placeholder-slate-500 focus:outline-none focus:border-fuchsia-400">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black text-fuchsia-300 uppercase tracking-wider mb-1.5">Fan Nomi</label>
+                        <input type="text" id="tc-subject" placeholder="Masalan: Informatika" class="w-full px-4 py-3 rounded-2xl border border-purple-500/30 text-sm font-bold bg-slate-950/60 text-white placeholder-slate-500 focus:outline-none focus:border-fuchsia-400">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-black text-fuchsia-300 uppercase tracking-wider mb-1.5">Mavzu Nomi</label>
+                    <input type="text" id="tc-topic" placeholder="Masalan: Tarmoq texnologiyalari" class="w-full px-4 py-3 rounded-2xl border border-purple-500/30 text-sm font-bold bg-slate-950/60 text-white placeholder-slate-500 focus:outline-none focus:border-fuchsia-400">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-black text-fuchsia-300 uppercase tracking-wider mb-1.5">Topshiriq Turi</label>
+                        <select id="tc-type" onchange="toggleTypeView()" class="w-full px-4 py-3 rounded-2xl border border-purple-500/30 text-sm font-black bg-slate-950 text-fuchsia-200 cursor-pointer focus:outline-none focus:border-fuchsia-400">
+                            <option value="manual-test">✍️ Variantli Test (Qo'lda kiritish)</option>
+                            <option value="ai-generator">🤖 AI Test Yaratgich (Gemini)</option>
+                            <option value="essay">📝 Matnli Topshiriq (Insho / Esse)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black text-fuchsia-300 uppercase tracking-wider mb-1.5">Umumiy Vaqt</label>
+                        <select id="tc-timer" class="w-full px-4 py-3 rounded-2xl border border-purple-500/30 text-sm font-black bg-slate-950 text-fuchsia-200 cursor-pointer focus:outline-none focus:border-fuchsia-400">
+                            <option value="0">Cheksiz (Vaqt belgilanmaydi)</option>
+                            <option value="15">15 daqiqa</option>
+                            <option value="25">25 daqiqa</option>
+                            <option value="30" selected>30 daqiqa</option>
+                            <option value="45">45 daqiqa</option>
+                            <option value="60">60 daqiqa (1 soat)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- AI GENERATOR PARAMETRLARI -->
+                <div id="ai-generator-params-box" class="hidden p-5 bg-purple-950/40 rounded-3xl border border-fuchsia-500/30 space-y-4">
+                    <div class="flex items-center gap-2 text-fuchsia-300 font-black text-sm">
+                        <i data-lucide="bot" class="w-5 h-5"></i>
+                        <span>Sun'iy Intellekt Sozlamalari</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[11px] font-black text-slate-300 uppercase tracking-wider mb-1">Savollar Soni</label>
+                            <select id="ai-q-count" class="w-full px-4 py-2.5 rounded-xl border border-purple-500/30 text-xs font-black bg-slate-950 text-white">
+                                <option value="5" selected>5 ta savol</option>
+                                <option value="10">10 ta savol</option>
+                                <option value="15">15 ta savol</option>
+                                <option value="20">20 ta savol</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-black text-slate-300 uppercase tracking-wider mb-1">Qo'shimcha Talablar (Ixtiyoriy)</label>
+                            <input type="text" id="ai-q-details" placeholder="Masalan: Oson va amaliy savollar bo'lsin" class="w-full px-4 py-2.5 rounded-xl border border-purple-500/30 text-xs bg-slate-950 text-white">
+                        </div>
+                    </div>
+                    <button type="button" onclick="generateTestWithAI()" id="btn-generate-ai" class="w-full py-3.5 bg-gradient-to-r from-fuchsia-600 to-indigo-600 hover:from-fuchsia-500 hover:to-indigo-500 text-white rounded-xl font-black text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                        <span>Savollarni Avtomatik Tuzish (Gemini AI)</span>
+                    </button>
+                </div>
+
+                <!-- INSHO YO'RIQNOMASI -->
+                <div id="essay-params-box" class="hidden">
+                    <label class="block text-[11px] font-black text-fuchsia-300 uppercase tracking-wider mb-1.5">Insho Yo'riqnomasi</label>
+                    <textarea id="tc-essay-guide" rows="4" placeholder="O'quvchi insho yozayotganda qaysi savollarni yoritishi kerakligini yozing..." class="w-full px-4 py-3 rounded-2xl border border-purple-500/30 text-sm font-medium bg-slate-950/60 text-white placeholder-slate-500 focus:outline-none focus:border-fuchsia-400"></textarea>
+                </div>
+
+                <!-- TEST SAVOLLARI RO'YXATI -->
+                <div id="manual-questions-box" class="space-y-4">
+                    <div id="manual-list" class="space-y-4"></div>
+                    <button type="button" onclick="addManualQuestionField()" class="w-full py-3.5 border-2 border-dashed border-fuchsia-500/40 hover:border-fuchsia-400 text-fuchsia-300 rounded-2xl font-black text-xs uppercase tracking-wider transition bg-slate-950/40 flex items-center justify-center gap-2">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>Yangi Savol Qo'shish</span>
+                    </button>
+                </div>
+
+                <button onclick="createTestWorkflow()" class="w-full py-4.5 btn-neon text-white rounded-2xl font-black text-sm tracking-wide flex items-center justify-center gap-2.5">
+                    <span>Topshiriqni Saqlash va Kod Olish</span>
+                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <!-- Kod modali -->
+            <div id="codeResultModal" class="hidden p-6 sm:p-8 bg-slate-950/90 border border-fuchsia-500/40 rounded-[32px] sm:rounded-[36px] space-y-4 shadow-2xl">
+                <div class="flex items-center gap-3 text-fuchsia-300 font-black text-lg">
+                    <i data-lucide="party-popper" class="w-6 h-6 text-fuchsia-400"></i> Topshiriq Saqlandi!
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="cyber-card p-5 rounded-2xl flex flex-col justify-between">
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider">O'quvchilar uchun kod</span>
+                        <div class="flex items-center justify-between mt-3">
+                            <span id="res-test-code" class="text-3xl font-black text-fuchsia-400 tracking-wider font-mono">----</span>
+                            <button onclick="copyText('res-test-code')" class="px-3.5 py-2 bg-fuchsia-500/20 hover:bg-fuchsia-500/30 text-fuchsia-300 rounded-xl text-xs font-black transition border border-fuchsia-500/30">Nusxa</button>
+                        </div>
+                    </div>
+                    <div class="cyber-card p-5 rounded-2xl flex flex-col justify-between">
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Natijalarni ko'rish kodi</span>
+                        <div class="flex items-center justify-between mt-3">
+                            <span id="res-result-code" class="text-3xl font-black text-emerald-400 tracking-wider font-mono">----result</span>
+                            <button onclick="copyText('res-result-code')" class="px-3.5 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 rounded-xl text-xs font-black transition border border-emerald-500/30">Nusxa</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. USTOZ: NATIJALAR BO'LIMI -->
+        <section id="tab-teacher-results" class="tab-content hidden max-w-4xl mx-auto space-y-6 motion-fade">
+            <div id="teacher-results-auth-box" class="max-w-md mx-auto cyber-card p-6 sm:p-10 rounded-[32px] sm:rounded-[40px] space-y-6 shadow-xl text-center">
+                <div class="w-14 h-14 mx-auto rounded-3xl bg-fuchsia-500/10 text-fuchsia-400 flex items-center justify-center border border-fuchsia-500/30">
+                    <i data-lucide="shield" class="w-7 h-7"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-black text-white">Natijalar Markazi</h2>
+                    <p class="text-slate-300 text-xs font-semibold mt-1">Natijalarni ko'rish uchun tizim parolini kiriting.</p>
+                </div>
+                <form onsubmit="handleTeacherAuth(event, 'results')" class="space-y-4">
+                    <input type="password" id="tr-auth-pin" required placeholder="Parolni kiriting..." class="w-full px-4 py-3.5 rounded-2xl border border-purple-500/30 text-center tracking-widest text-2xl font-black focus:outline-none focus:border-fuchsia-400 bg-slate-950/80 text-fuchsia-300">
+                    <button type="submit" class="w-full py-4 btn-neon text-white rounded-2xl font-black text-sm transition">Kirish</button>
+                </form>
+            </div>
+
+            <div id="teacher-results-content-box" class="hidden space-y-6">
+                <div class="cyber-card p-6 sm:p-10 rounded-[32px] sm:rounded-[40px] space-y-4">
+                    <div>
+                        <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Natijalar Boshqaruvi</h2>
+                        <p class="text-slate-300 text-xs font-semibold mt-1">Test kodi orqali qidiring va o'quvchilar ballarini kuzating.</p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <input type="text" id="search-result-code" placeholder="Masalan: 8340result yoki 8340" class="flex-grow px-5 py-4 rounded-2xl border border-purple-500/30 font-black text-fuchsia-400 text-base tracking-wider uppercase focus:outline-none focus:border-fuchsia-400 bg-slate-950/70 font-mono">
+                        <button onclick="fetchTestResults()" class="px-8 py-4 btn-neon text-white rounded-2xl font-black text-sm flex items-center justify-center gap-2">
+                            <i data-lucide="search" class="w-4 h-4"></i>
+                            <span>Qidirish</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="results-display-wrapper" class="hidden space-y-4">
+                    <div class="cyber-card p-5 sm:p-8 rounded-[28px] sm:rounded-[36px] flex flex-wrap items-center justify-between gap-6">
+                        <div>
+                            <span id="res-meta-subject" class="px-3 py-1 bg-fuchsia-500/20 text-fuchsia-300 rounded-full font-black text-[10px] uppercase tracking-wider border border-fuchsia-500/30">Fan</span>
+                            <h3 id="res-meta-topic" class="text-xl sm:text-2xl font-black text-white mt-2">Mavzu Nomi</h3>
+                            <p id="res-meta-teacher" class="text-xs font-bold text-slate-300 mt-0.5">Ustoz: ...</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="text-center px-4 sm:px-5 py-3 bg-slate-950/60 rounded-2xl border border-purple-500/30 shadow-sm">
+                                <span class="block text-[10px] font-black text-slate-400 uppercase tracking-wider">O'quvchilar</span>
+                                <span id="kpi-total-students" class="text-2xl font-black text-white">0</span>
+                            </div>
+                            <div class="text-center px-4 sm:px-5 py-3 bg-slate-950/60 rounded-2xl border border-purple-500/30 shadow-sm">
+                                <span class="block text-[10px] font-black text-slate-400 uppercase tracking-wider">O'rtacha Ball</span>
+                                <span id="kpi-avg-score" class="text-2xl font-black text-emerald-400">0%</span>
+                            </div>
+                            <button onclick="clearAllTestResults()" class="px-4 py-3.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 rounded-2xl font-black text-xs transition flex items-center gap-2 shadow-sm">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                <span class="hidden sm:inline">Tozalash</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="cyber-card rounded-[28px] sm:rounded-[36px] overflow-x-auto shadow-sm">
+                        <table class="w-full text-left text-sm min-w-[550px]">
+                            <thead class="bg-slate-950/80 border-b border-purple-500/20 text-slate-400 text-[11px] font-black uppercase tracking-wider">
+                                <tr>
+                                    <th class="p-4 sm:p-5">O'quvchi</th>
+                                    <th class="p-4 sm:p-5">Sinf</th>
+                                    <th class="p-4 sm:p-5">Ball</th>
+                                    <th class="p-4 sm:p-5">Foiz</th>
+                                    <th class="p-4 sm:p-5 text-right">Amallar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="students-table-body" class="divide-y divide-purple-500/10 font-bold text-slate-200"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. QULFLI SEYF -->
+        <section id="tab-vault" class="tab-content hidden max-w-md mx-auto space-y-6 motion-fade">
+            <div id="vault-auth-box" class="cyber-card p-6 sm:p-10 rounded-[32px] sm:rounded-[40px] space-y-6">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-fuchsia-600/20 text-fuchsia-400 border border-fuchsia-500/30 flex items-center justify-center text-xl shadow-md">
+                        <i data-lucide="lock" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-black text-white tracking-tight">Ustoz Seyfi</h2>
+                        <p class="text-[11px] font-semibold text-slate-400">Turso bazasida 6 xonali PIN bilan himoyalangan</p>
+                    </div>
+                </div>
+
+                <div class="flex border-b border-purple-500/20 pb-2 gap-4">
+                    <button onclick="setVaultMode('login')" id="btn-vmode-login" class="text-xs font-black text-fuchsia-400 border-b-2 border-fuchsia-400 pb-1.5 uppercase tracking-wider">Kirish</button>
+                    <button onclick="setVaultMode('register')" id="btn-vmode-reg" class="text-xs font-bold text-slate-400 pb-1.5 uppercase tracking-wider">Yangi Ochish</button>
+                </div>
+
+                <form id="vault-form" onsubmit="handleVaultAuth(event)" class="space-y-4">
+                    <div id="vault-owner-field" class="hidden">
+                        <label class="block text-[11px] font-black text-fuchsia-300 uppercase tracking-wider mb-1.5">Ustoz Ismi</label>
+                        <input type="text" id="v-owner" placeholder="Masalan: Javohir Maxramov" class="w-full px-4 py-3 rounded-2xl border border-purple-500/30 text-sm font-bold bg-slate-950/60 text-white placeholder-slate-500 focus:outline-none focus:border-fuchsia-400">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-black text-fuchsia-300 uppercase tracking-wider mb-1.5">6 Xonali PIN Kod</label>
+                        <input type="password" maxlength="6" id="v-pin" required placeholder="••••••" class="w-full px-4 py-3.5 rounded-2xl border border-purple-500/30 text-center tracking-widest text-2xl font-black focus:outline-none focus:border-fuchsia-400 bg-slate-950/60 text-fuchsia-400">
+                    </div>
+                    <button type="submit" id="v-submit-btn" class="w-full py-4 btn-neon text-white rounded-2xl font-black text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2">
+                        <i data-lucide="key-round" class="w-4 h-4"></i>
+                        <span>Seyfni Ochish</span>
+                    </button>
+                </form>
+            </div>
+
+            <div id="vault-content-box" class="hidden cyber-card p-6 sm:p-8 rounded-[32px] sm:rounded-[40px] space-y-6">
+                <div class="flex items-center justify-between border-b border-purple-500/20 pb-4">
+                    <div>
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Seyf Egasi</span>
+                        <h3 id="v-profile-owner" class="text-lg font-black text-white">Ustoz</h3>
+                    </div>
+                    <button onclick="lockVault()" class="px-3.5 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 rounded-xl text-xs font-black transition flex items-center gap-1.5">
+                        <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                        <span>Chiqish</span>
+                    </button>
+                </div>
+
+                <div class="p-4 bg-purple-950/40 rounded-2xl border border-purple-500/30 space-y-3">
+                    <span class="text-xs font-black text-fuchsia-300 block uppercase tracking-wider">Topshiriq Kodini Saqlash</span>
+                    <input type="text" id="v-note-code" placeholder="Test kodi (masalan: 1234)" class="w-full px-3.5 py-2.5 rounded-xl border border-purple-500/30 text-xs font-black uppercase bg-slate-950/80 text-white focus:outline-none focus:border-fuchsia-400">
+                    <input type="text" id="v-note-title" placeholder="Eslatma (masalan: 10-A Informatika)" class="w-full px-3.5 py-2.5 rounded-xl border border-purple-500/30 text-xs font-bold bg-slate-950/80 text-white focus:outline-none focus:border-fuchsia-400">
+                    <button onclick="saveNoteToVault()" class="w-full py-2.5 btn-neon text-white rounded-xl font-black text-xs transition">Seyfga Saqlash</button>
+                </div>
+
+                <div class="space-y-2.5">
+                    <span class="text-[11px] font-black text-slate-400 uppercase tracking-wider">Mening Saqlangan Topshiriqlarim</span>
+                    <div id="vault-notes-list" class="space-y-2"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. ADMIN PANEL -->
+        <section id="tab-admin-panel" class="tab-content hidden max-w-4xl mx-auto space-y-6 motion-fade">
+            <div id="admin-auth-box" class="max-w-md mx-auto cyber-card p-6 sm:p-10 rounded-[32px] sm:rounded-[40px] space-y-6 shadow-xl">
+                <div class="text-center space-y-2">
+                    <div class="w-14 h-14 mx-auto rounded-3xl bg-rose-500/10 text-rose-400 flex items-center justify-center shadow-inner border border-rose-500/30">
+                        <i data-lucide="shield-check" class="w-7 h-7"></i>
+                    </div>
+                    <h2 class="text-2xl font-black text-white">Admin Boshqaruvi</h2>
+                    <p class="text-slate-300 text-xs font-semibold">Tizimga kirish uchun maxfiy parolni tering.</p>
+                </div>
+                <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-[11px] font-black text-rose-300 uppercase tracking-wider mb-1.5">Admin Parol</label>
+                        <input type="password" id="admin-pin-input" required placeholder="Parolni kiriting..." class="w-full px-4 py-3.5 rounded-2xl border border-rose-500/30 text-center tracking-widest text-2xl font-black focus:outline-none focus:border-rose-400 bg-slate-950/80 text-rose-400">
+                    </div>
+                    <button type="submit" class="w-full py-4 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white rounded-2xl font-black text-sm tracking-wide transition shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2">
+                        <i data-lucide="unlock" class="w-4 h-4"></i>
+                        <span>Kirish</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Admin Boshqaruv Markazi -->
+            <div id="admin-dashboard-box" class="hidden space-y-6">
+                <div class="cyber-card p-5 sm:p-6 rounded-[28px] sm:rounded-[36px] flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <span class="px-3 py-1 bg-rose-500/20 text-rose-300 rounded-full font-black text-[10px] uppercase tracking-wider border border-rose-500/30">Boshqaruv Markazi</span>
+                        <h2 class="text-2xl font-black text-white mt-1">Admin Paneli</h2>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="setAdminTab('requests')" id="atab-btn-requests" class="px-3.5 sm:px-4 py-2 bg-fuchsia-500/20 text-fuchsia-300 rounded-xl font-black text-xs transition border border-fuchsia-500/30 flex items-center gap-1.5">
+                            <i data-lucide="users" class="w-4 h-4"></i>
+                            <span>Testga Ruxsatlar</span>
+                        </button>
+                        <button onclick="setAdminTab('backgrounds')" id="atab-btn-backgrounds" class="px-3.5 sm:px-4 py-2 text-slate-400 hover:text-white rounded-xl font-bold text-xs transition flex items-center gap-1.5">
+                            <i data-lucide="image" class="w-4 h-4"></i>
+                            <span>Backgrounds</span>
+                        </button>
+                        <button onclick="setAdminTab('gemini')" id="atab-btn-gemini" class="px-3.5 sm:px-4 py-2 text-slate-400 hover:text-white rounded-xl font-bold text-xs transition flex items-center gap-1.5">
+                            <i data-lucide="bot" class="w-4 h-4"></i>
+                            <span>Gemini</span>
+                        </button>
+                        <button onclick="setAdminTab('password')" id="atab-btn-password" class="px-3.5 sm:px-4 py-2 text-slate-400 hover:text-white rounded-xl font-bold text-xs transition flex items-center gap-1.5">
+                            <i data-lucide="key" class="w-4 h-4"></i>
+                            <span>Tizim Paroli</span>
+                        </button>
+                        <button onclick="setAdminTab('status')" id="atab-btn-status" class="px-3.5 sm:px-4 py-2 text-slate-400 hover:text-white rounded-xl font-bold text-xs transition flex items-center gap-1.5">
+                            <i data-lucide="activity" class="w-4 h-4"></i>
+                            <span>Sayt Xolati</span>
+                        </button>
+                        <button onclick="logoutAdmin()" class="px-3.5 sm:px-4 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded-xl font-black text-xs transition border border-rose-500/30 flex items-center gap-1.5">
+                            <i data-lucide="power" class="w-4 h-4"></i>
+                            <span>Chiqish</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 1-MENU: TESTGA RUXSAT SO'ROVLARI -->
+                <div id="admin-sec-requests" class="space-y-4">
+                    <div class="cyber-card p-5 sm:p-6 rounded-[28px] sm:rounded-[36px] space-y-4">
+                        <h3 class="text-base font-black text-white">Ruxsat So'rovlarini Tekshirish</h3>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <input type="text" id="admin-search-req-code" placeholder="Test kodini kiriting (masalan: 8340)" class="flex-grow px-4 py-3 rounded-2xl border border-purple-500/30 font-bold text-fuchsia-400 text-sm tracking-wider uppercase font-mono bg-slate-950/70 focus:outline-none focus:border-fuchsia-400">
+                            <button onclick="loadAdminRequests()" class="px-6 py-3 btn-neon text-white rounded-2xl font-black text-xs transition flex items-center justify-center gap-2">
+                                <i data-lucide="search" class="w-4 h-4"></i>
+                                <span>Ko'rish</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="batch-control-bar" class="hidden cyber-card p-4 rounded-2xl flex flex-wrap items-center justify-between gap-3">
+                        <span class="text-xs font-black text-slate-300">Guruhli tezkor amallar:</span>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="updateAllRequests('approved')" class="px-3 py-2 bg-emerald-600/30 hover:bg-emerald-600/40 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-black transition shadow-sm flex items-center gap-1.5">
+                                <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                <span>Barchasini Tasdiqlash</span>
+                            </button>
+                            <button onclick="updateAllRequests('review')" class="px-3 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-xl text-xs font-black transition shadow-sm flex items-center gap-1.5">
+                                <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
+                                <span>Ko'rib Chiqishga Yuborish</span>
+                            </button>
+                            <button onclick="updateAllRequests('rejected')" class="px-3 py-2 bg-rose-600/30 hover:bg-rose-600/40 text-rose-300 border border-rose-500/40 rounded-xl text-xs font-black transition shadow-sm flex items-center gap-1.5">
+                                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                                <span>Barchasini Rad Etish</span>
+                            </button>
+                            <button onclick="clearAdminRequests()" class="px-3 py-2 bg-purple-600/30 hover:bg-purple-600/50 text-fuchsia-300 border border-fuchsia-500/40 rounded-xl text-xs font-black transition shadow-sm flex items-center gap-1.5">
+                                <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+                                <span>So'rovlarni Tozalash</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="admin-requests-wrapper" class="hidden cyber-card rounded-[28px] sm:rounded-[36px] overflow-x-auto shadow-sm">
+                        <table class="w-full text-left text-sm min-w-[500px]">
+                            <thead class="bg-slate-950/80 border-b border-purple-500/20 text-slate-400 text-[11px] font-black uppercase tracking-wider">
+                                <tr>
+                                    <th class="p-4 sm:p-5">O'quvchi</th>
+                                    <th class="p-4 sm:p-5">Sinf</th>
+                                    <th class="p-4 sm:p-5">Holat</th>
+                                    <th class="p-4 sm:p-5 text-right">Amallar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-requests-tbody" class="divide-y divide-purple-500/10 font-bold text-slate-200"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 2-MENU: BACKGROUNDS -->
+                <div id="admin-sec-backgrounds" class="hidden cyber-card p-6 sm:p-8 rounded-[32px] sm:rounded-[40px] space-y-6">
+                    <div>
+                        <h3 class="text-lg font-black text-white flex items-center gap-2">
+                            <i data-lucide="image" class="w-5 h-5 text-fuchsia-400"></i>
+                            <span>Background Sozlamalari</span>
+                        </h3>
+                        <p class="text-xs font-semibold text-slate-300 mt-0.5">Oddiy rasm yoki animatsiyali video fonni o'rnating.</p>
+                    </div>
+
+                    <div class="space-y-4 p-5 bg-slate-950/70 rounded-2xl border border-purple-500/30">
+                        <div>
+                            <label class="block text-xs font-black text-fuchsia-300 uppercase tracking-wider mb-2">Fon Turi</label>
+                            <div class="flex gap-4">
+                                <label class="flex items-center gap-2 cursor-pointer text-xs font-bold">
+                                    <input type="radio" name="admin-bg-type" value="image" onchange="toggleBgUrlPlaceholder()" class="w-4 h-4 text-fuchsia-500" checked>
+                                    <span>Oddiy Rasm (1920x1080)</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer text-xs font-bold">
+                                    <input type="radio" name="admin-bg-type" value="video" onchange="toggleBgUrlPlaceholder()" class="w-4 h-4 text-fuchsia-500">
+                                    <span>Animatsiyali Video (MP4 / WebM)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label id="bg-url-label" class="block text-[11px] font-black text-slate-300 uppercase tracking-wider mb-1.5">Rasm URL manzili (1920x1080 tavsiya etiladi)</label>
+                            <input type="text" id="admin-bg-url-input" placeholder="https://... rasm yoki video linki" class="w-full px-4 py-3 rounded-2xl border border-purple-500/30 text-sm font-mono bg-slate-900 text-white placeholder-slate-500 focus:outline-none focus:border-fuchsia-400">
+                            <p class="text-[11px] text-slate-400 mt-1">Lokal rasm uchun `fon.jpg` yoki internetdan to'g'ridan-to'g'ri rasm/mp4 video havolasini yozing.</p>
+                        </div>
+                    </div>
+
+                    <button onclick="saveBackgroundSettings()" class="w-full py-4 btn-neon text-white rounded-2xl font-black text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2">
+                        <i data-lucide="save" class="w-4 h-4"></i>
+                        <span>Fonni Saqlash</span>
+                    </button>
+                </div>
+
+                <!-- 3-MENU: GEMINI BOSHQARUVCHI & API CHECKER -->
+                <div id="admin-sec-gemini" class="hidden cyber-card p-6 sm:p-8 rounded-[32px] sm:rounded-[40px] space-y-6">
+                    <div>
+                        <h3 class="text-lg font-black text-white flex items-center gap-2">
+                            <i data-lucide="cpu" class="w-5 h-5 text-fuchsia-400"></i>
+                            <span>Gemini AI Integratsiyasi</span>
+                        </h3>
+                        <p class="text-xs font-semibold text-slate-300 mt-0.5">Google AI Studio bepul API kalitini boshqaring va tekshiring.</p>
+                    </div>
+
+                    <div class="p-5 bg-slate-950/70 rounded-2xl border border-purple-500/30 space-y-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div>
+                                <h4 class="text-sm font-black text-white">API Checker (Holatni Tekshiruvchi)</h4>
+                                <p class="text-[11px] text-slate-400">Kalitning mavjudligi, yaroqliligi va limitini aniqlaydi.</p>
+                            </div>
+                            <button onclick="checkGeminiApiStatus()" id="btn-check-api" class="px-4 py-2.5 bg-fuchsia-500/20 hover:bg-fuchsia-500/30 text-fuchsia-300 border border-fuchsia-500/30 rounded-xl font-black text-xs transition flex items-center justify-center gap-2 whitespace-nowrap">
+                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                                <span>API Holatini Tekshirish</span>
+                            </button>
+                        </div>
+                        <div id="api-checker-result" class="hidden p-3.5 rounded-xl text-xs font-bold leading-relaxed border"></div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="block text-[11px] font-black text-fuchsia-300 uppercase tracking-wider">Gemini API Kaliti</label>
+                        <input type="password" id="gemini-key-input" placeholder="AIzaSy..." class="w-full px-4 py-3 rounded-2xl border border-purple-500/30 text-sm font-mono bg-slate-950/70 text-white placeholder-slate-500 focus:outline-none focus:border-fuchsia-400">
+                        <button onclick="saveGeminiApiKey()" class="w-full py-3.5 btn-neon text-white rounded-2xl font-black text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2">
+                            <i data-lucide="save" class="w-4 h-4"></i>
+                            <span>Kalitni Saqlash</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 4-MENU: TIZIM PAROLINI O'ZGARTIRISH -->
+                <div id="admin-sec-password" class="hidden cyber-card p-6 sm:p-8 rounded-[32px] sm:rounded-[40px] space-y-6">
+                    <div>
+                        <h3 class="text-lg font-black text-white flex items-center gap-2">
+                            <i data-lucide="key-round" class="w-5 h-5 text-fuchsia-400"></i>
+                            <span>Tizim Parolini O'zgartirish</span>
+                        </h3>
+                        <p class="text-xs font-semibold text-slate-300 mt-0.5">Ushbu parol Admin paneli, Test yaratish va Natijalar bo'limlari uchun umumiy hisoblanadi.</p>
+                    </div>
+
+                    <form onsubmit="changeSystemPassword(event)" class="space-y-4 p-5 bg-slate-950/70 rounded-2xl border border-purple-500/30">
+                        <div>
+                            <label class="block text-[11px] font-black text-fuchsia-300 uppercase tracking-wider mb-1.5">Joriy Parol</label>
+                            <input type="password" id="sys-old-pin" required placeholder="Hozirgi parolni kiriting..." class="w-full px-4 py-3 rounded-2xl border border-purple-500/30 text-sm font-black tracking-widest bg-slate-900 text-white placeholder-slate-500 focus:outline-none focus:border-fuchsia-400">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-black text-emerald-300 uppercase tracking-wider mb-1.5">Yangi Parol</label>
+                            <input type="password" id="sys-new-pin" required placeholder="Yangi parolni kiriting (kamida 4 belgi)..." class="w-full px-4 py-3 rounded-2xl border border-emerald-500/30 text-sm font-black tracking-widest bg-slate-900 text-emerald-300 placeholder-slate-500 focus:outline-none focus:border-emerald-400">
+                        </div>
+                        <button type="submit" class="w-full py-3.5 btn-neon text-white rounded-2xl font-black text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2">
+                            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                            <span>Yangi Parolni Saqlash</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 5-MENU: SAYT XOLATI -->
+                <div id="admin-sec-status" class="hidden cyber-card p-6 sm:p-8 rounded-[32px] sm:rounded-[40px] space-y-6">
+                    <div>
+                        <h3 class="text-lg font-black text-white">Saytning Umumiy Holati</h3>
+                        <p class="text-xs font-semibold text-slate-300 mt-0.5">Saytni butunlay yopish yoki qayta ishga tushirish.</p>
+                    </div>
+
+                    <div class="flex items-center gap-4 p-5 bg-slate-950/70 rounded-2xl border border-purple-500/30">
+                        <div id="site-status-indicator" class="w-4 h-4 rounded-full bg-emerald-400 animate-pulse"></div>
+                        <span id="site-status-text" class="text-sm font-black text-slate-200">Sayt Hozirda Faol va Ishlamoqda</span>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-[11px] font-black text-fuchsia-300 uppercase tracking-wider mb-1.5">O'chirish Sababi:</label>
+                            <input type="text" id="admin-site-reason" placeholder="Masalan: Saytda profilaktika ishlari olib borilmoqda..." class="w-full px-4 py-3 rounded-2xl border border-purple-500/30 text-sm font-bold bg-slate-950/60 text-white placeholder-slate-500 focus:outline-none focus:border-fuchsia-400">
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <button onclick="changeSiteStatus('inactive')" class="flex-1 py-3.5 bg-rose-600/30 hover:bg-rose-600/40 text-rose-300 border border-rose-500/40 rounded-2xl font-black text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2">
+                                <i data-lucide="ban" class="w-4 h-4"></i>
+                                <span>Saytni O'chirish</span>
+                            </button>
+                            <button onclick="changeSiteStatus('active')" class="flex-1 py-3.5 bg-emerald-600/30 hover:bg-emerald-600/40 text-emerald-300 border border-emerald-500/40 rounded-2xl font-black text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2">
+                                <i data-lucide="play" class="w-4 h-4"></i>
+                                <span>Saytni Yoqish</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Tahlil Modali -->
+    <div id="inspectModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+        <div class="cyber-card w-full max-w-2xl max-h-[88vh] overflow-y-auto rounded-[32px] sm:rounded-[36px] p-5 sm:p-8 space-y-5 shadow-2xl border border-purple-500/40 motion-fade">
+            <div class="flex items-center justify-between border-b border-purple-500/20 pb-4">
+                <div>
+                    <h3 id="modal-student-name" class="text-lg font-black text-white">O'quvchi Tahlili</h3>
+                    <p id="modal-student-score" class="text-xs font-bold text-fuchsia-300"></p>
+                </div>
+                <button onclick="closeInspectModal()" class="w-9 h-9 rounded-2xl bg-slate-800 hover:bg-slate-700 font-black text-slate-300 text-sm transition flex items-center justify-center">✕</button>
+            </div>
+            <div id="modal-questions-review" class="space-y-3"></div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIKASI -->
+    <script>
+        const API_URL = "https://test-backend-z32p.onrender.com";
+
+        let sessionAdminPin = localStorage.getItem('edusmart_cached_pin') || "201049";
+        let currentActiveTest = null;
+        let currentStudentInfo = null;
+        let examTimerInterval = null;
+        let currentLoadedResults = null;
+        let activeVaultData = null;
+        let vaultMode = 'login';
+        let manualQuestionsList = [];
+        let studentWaitingInterval = null;
+        let activeRequestId = null;
+        let activeAdminTestCode = null;
+        let isSiteActive = true;
+        let isTeacherCreateAuthed = false;
+        let isTeacherResultsAuthed = false;
+
+        let currentBgType = localStorage.getItem('edusmart_bg_type') || 'image';
+        let currentBgUrl = localStorage.getItem('edusmart_bg_url') || 'https://i.pinimg.com/1200x/3f/44/63/3f4463a3878147b4d719ba0e83f68b5d.jpg';
+
+        function refreshIcons() {
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function escapeHtml(str) {
+            if (!str) return "";
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        async function apiCall(endpoint, method = 'GET', body = null) {
+            const options = {
+                method,
+                headers: { 'Content-Type': 'application/json' }
+            };
+            if (body) options.body = JSON.stringify(body);
+            
+            try {
+                const res = await fetch(`${API_URL}${endpoint}`, options);
+                const text = await res.text();
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    throw new Error("Server javob berishda kechikmoqda, birozdan so'ng qayta urinib ko'ring.");
+                }
+            } catch (err) {
+                throw new Error("Server bilan aloqa vaqtincha uzildi.");
+            }
+        }
+
+        function populateClasses() {
+            const select = document.getElementById('stu-class');
+            select.innerHTML = '<option value="" disabled selected>Sinfingizni tanlang</option>';
+            const letters = ['A', 'B'];
+            for (let num = 5; num <= 10; num++) {
+                letters.forEach(lettr => {
+                    select.innerHTML += `<option value="${num}-${lettr}">${num}-${lettr} sinf</option>`;
+                });
+            }
+        }
+        populateClasses();
+
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.className = `fixed top-4 right-4 sm:top-5 sm:right-5 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl font-bold text-xs sm:text-sm transition-all duration-300 pointer-events-none max-w-sm sm:max-w-md ${
+                isError ? 'bg-rose-950/90 text-rose-200 border-rose-500/50 shadow-rose-950/50' : 'bg-slate-900/90 text-fuchsia-200 border-purple-500/50 shadow-purple-950/50'
+            }`;
+            toast.style.transform = 'translateY(0)';
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                toast.style.transform = 'translateY(-120px)';
+                toast.style.opacity = '0';
+            }, 3500);
+        }
+
+        function showLoading(show, text = "Bajarilmoqda...") {
+            const m = document.getElementById('loadingModal');
+            document.getElementById('loadingText').innerText = text;
+            if (show) m.classList.remove('hidden'); else m.classList.add('hidden');
+        }
+
+        function applyBackground(type, url) {
+            currentBgType = type;
+            currentBgUrl = url;
+            const imgLayer = document.getElementById('bg-image-layer');
+            const videoLayer = document.getElementById('bg-video-layer');
+
+            if (type === 'video' && url) {
+                imgLayer.classList.add('hidden');
+                videoLayer.classList.remove('hidden');
+                if (videoLayer.src !== url) {
+                    videoLayer.src = url;
+                    videoLayer.play().catch(() => {});
+                }
+            } else {
+                videoLayer.classList.add('hidden');
+                videoLayer.pause();
+                imgLayer.classList.remove('hidden');
+                imgLayer.style.backgroundImage = `url('${url || "fon.jpg"}')`;
+            }
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('bg-fuchsia-600', 'text-white', 'shadow-md');
+                b.classList.add('text-slate-300');
+            });
+
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.classList.add('bg-fuchsia-600', 'text-white', 'shadow-md');
+                activeNav.classList.remove('text-slate-300');
+            }
+
+            if (tabId === 'teacher-create') {
+                if (!isTeacherCreateAuthed) {
+                    document.getElementById('teacher-create-auth-box').classList.remove('hidden');
+                    document.getElementById('teacher-create-content-box').classList.add('hidden');
+                } else {
+                    document.getElementById('teacher-create-auth-box').classList.add('hidden');
+                    document.getElementById('teacher-create-content-box').classList.remove('hidden');
+                }
+            } else if (tabId === 'teacher-results') {
+                if (!isTeacherResultsAuthed) {
+                    document.getElementById('teacher-results-auth-box').classList.remove('hidden');
+                    document.getElementById('teacher-results-content-box').classList.add('hidden');
+                } else {
+                    document.getElementById('teacher-results-auth-box').classList.add('hidden');
+                    document.getElementById('teacher-results-content-box').classList.remove('hidden');
+                }
+            }
+
+            refreshIcons();
+            checkSiteStatus();
+        }
+
+        // BAZADAGI TIZIM PAROLI BILAN TEKSHIRISH (Test Yaratish va Natijalar)
+        async function handleTeacherAuth(e, type) {
+            e.preventDefault();
+            const inputId = type === 'create' ? 'tc-auth-pin' : 'tr-auth-pin';
+            const pin = document.getElementById(inputId).value.trim();
+
+            showLoading(true, "Parol tekshirilmoqda...");
+            try {
+                const res = await apiCall('/api/admin/verify-pin', 'POST', { pin });
+                showLoading(false);
+
+                if (res && res.success) {
+                    sessionAdminPin = pin;
+                    localStorage.setItem('edusmart_cached_pin', pin);
+                    if (type === 'create') {
+                        isTeacherCreateAuthed = true;
+                        document.getElementById('teacher-create-auth-box').classList.add('hidden');
+                        document.getElementById('teacher-create-content-box').classList.remove('hidden');
+                    } else {
+                        isTeacherResultsAuthed = true;
+                        document.getElementById('teacher-results-auth-box').classList.add('hidden');
+                        document.getElementById('teacher-results-content-box').classList.remove('hidden');
+                    }
+                    document.getElementById(inputId).value = "";
+                    showToast("Muvaffaqiyatli tasdiqlandi!");
+                    refreshIcons();
+                } else {
+                    showToast(res.message || "Parol noto'g'ri!", true);
+                }
+            } catch (err) {
+                showLoading(false);
+                if (pin === sessionAdminPin) {
+                    if (type === 'create') {
+                        isTeacherCreateAuthed = true;
+                        document.getElementById('teacher-create-auth-box').classList.add('hidden');
+                        document.getElementById('teacher-create-content-box').classList.remove('hidden');
+                    } else {
+                        isTeacherResultsAuthed = true;
+                        document.getElementById('teacher-results-auth-box').classList.add('hidden');
+                        document.getElementById('teacher-results-content-box').classList.remove('hidden');
+                    }
+                    showToast("Muvaffaqiyatli tasdiqlandi!");
+                } else {
+                    showToast("Parol noto'g'ri!", true);
+                }
+            }
+        }
+
+        async function checkSiteStatus() {
+            try {
+                const data = await apiCall('/api/site-status');
+                if (!data || !data.success) return;
+
+                if (data.bg_url) {
+                    applyBackground(data.bg_type || 'image', data.bg_url);
+                }
+
+                const overlay = document.getElementById('site-disabled-screen');
+                const reasonText = document.getElementById('site-disabled-reason');
+
+                const currentTab = document.querySelector('.tab-content:not(.hidden)')?.id;
+                if (currentTab === 'tab-admin-panel') {
+                    overlay.classList.add('hidden');
+                    return;
+                }
+
+                if (data.status === 'inactive') {
+                    isSiteActive = false;
+                    reasonText.innerText = data.reason || "Hozirda profilaktika ishlari olib borilmoqda.";
+                    overlay.classList.remove('hidden');
+                } else {
+                    if (!isSiteActive) {
+                        isSiteActive = true;
+                        const welcome = document.getElementById('site-welcome-toast');
+                        welcome.classList.remove('hidden');
+                        setTimeout(() => welcome.classList.add('hidden'), 2500);
+                    }
+                    overlay.classList.add('hidden');
+                }
+            } catch (e) {}
+        }
+        setInterval(checkSiteStatus, 5000);
+
+        // 1. O'QUVCHI: TESTGA KIRISH VA KUTISH
+        async function requestStudentAccess(e) {
+            e.preventDefault();
+            const name = document.getElementById('stu-name').value.trim();
+            const sClass = document.getElementById('stu-class').value;
+            const code = document.getElementById('stu-code').value.trim().toLowerCase().replace('result', '');
+
+            if (!name || !sClass || !code) return showToast("Barcha maydonlarni to'ldiring!", true);
+
+            showLoading(true, "Ruxsat so'rovi yuborilmoqda...");
+            try {
+                const data = await apiCall('/api/request-access', 'POST', { test_code: code, student_name: name, student_class: sClass });
+                showLoading(false);
+
+                if (!data.success) {
+                    return showToast(data.message || "Bunday test kodi topilmadi!", true);
+                }
+
+                activeRequestId = data.requestId;
+                currentStudentInfo = { name, sClass, code };
+
+                document.getElementById('student-login-box').classList.add('hidden');
+                document.getElementById('student-waiting-box').classList.remove('hidden');
+                document.getElementById('wait-name').innerText = name;
+                document.getElementById('wait-class').innerText = sClass;
+                document.getElementById('wait-code').innerText = code;
+                document.getElementById('waiting-status-alert').classList.add('hidden');
+                refreshIcons();
+
+                startWaitingPolling();
+            } catch (err) {
+                showLoading(false);
+                showToast(err.message, true);
+            }
+        }
+
+        function startWaitingPolling() {
+            if (studentWaitingInterval) clearInterval(studentWaitingInterval);
+
+            studentWaitingInterval = setInterval(async () => {
+                if (!activeRequestId) return;
+                try {
+                    const data = await apiCall(`/api/check-request-status/${activeRequestId}`);
+                    if (!data || !data.success) return;
+
+                    const alertBox = document.getElementById('waiting-status-alert');
+
+                    if (data.status === 'approved') {
+                        clearInterval(studentWaitingInterval);
+                        loadStudentExamAfterApproval();
+                    } else if (data.status === 'review') {
+                        alertBox.className = "p-4 bg-amber-950/40 border border-amber-500/40 text-amber-200 rounded-2xl text-xs font-black leading-relaxed block motion-fade";
+                        alertBox.innerText = "⚠️ Ma'lumotlaringni qaytadan ko'rib chiq yoki adminga murojaat qil!";
+                    } else if (data.status === 'rejected') {
+                        clearInterval(studentWaitingInterval);
+                        alertBox.className = "p-4 bg-rose-950/40 border border-rose-500/40 text-rose-200 rounded-2xl text-xs font-black leading-relaxed block motion-fade";
+                        alertBox.innerText = "❌ Sizning so'rovingiz admin tomonidan rad etildi!";
+                    }
+                } catch (e) {}
+            }, 2000);
+        }
+
+        function cancelStudentWait() {
+            if (studentWaitingInterval) clearInterval(studentWaitingInterval);
+            activeRequestId = null;
+            document.getElementById('student-waiting-box').classList.add('hidden');
+            document.getElementById('student-login-box').classList.remove('hidden');
+            refreshIcons();
+        }
+
+        async function loadStudentExamAfterApproval() {
+            showLoading(true, "Test ochilmoqda...");
+            try {
+                const data = await apiCall(`/api/tests/${currentStudentInfo.code}`);
+                showLoading(false);
+
+                if (!data.success) return showToast("Test topilmadi!", true);
+
+                currentActiveTest = data.test;
+                document.getElementById('student-waiting-box').classList.add('hidden');
+                document.getElementById('student-exam-box').classList.remove('hidden');
+
+                document.getElementById('exam-title').innerText = currentActiveTest.topic;
+                document.getElementById('exam-meta').innerText = `Fan: ${currentActiveTest.subject} | Ustoz: ${currentActiveTest.teacher}`;
+                document.getElementById('exam-badge').innerText = currentActiveTest.type === 'essay' ? 'Insho' : 'Test';
+
+                if (currentActiveTest.type === 'essay') {
+                    document.getElementById('essay-wrapper').classList.remove('hidden');
+                    document.getElementById('test-questions-wrapper').classList.add('hidden');
+                    document.getElementById('essay-instructions').innerText = currentActiveTest.data[0]?.guide || "Mavzuni to'liq yoritib bering.";
+                    
+                    const area = document.getElementById('essay-text');
+                    area.value = "";
+                    area.oninput = function() {
+                        const words = this.value.trim().split(/\s+/).filter(w => w.length > 0).length;
+                        document.getElementById('essay-word-count').innerText = words;
+                        document.getElementById('essay-char-count').innerText = this.value.length;
+                    };
+                } else {
+                    document.getElementById('essay-wrapper').classList.add('hidden');
+                    document.getElementById('test-questions-wrapper').classList.remove('hidden');
+                    renderExamQuestions(currentActiveTest.data);
+                }
+
+                if (currentActiveTest.timer > 0) {
+                    startTimer(currentActiveTest.timer * 60);
+                } else {
+                    document.getElementById('exam-timer-text').innerText = "Cheksiz ∞";
+                }
+                refreshIcons();
+            } catch (err) {
+                showLoading(false);
+                showToast("Yuklashda xatolik!", true);
+            }
+        }
+
+        function renderExamQuestions(list) {
+            const wrap = document.getElementById('test-questions-wrapper');
+            wrap.innerHTML = "";
+            list.forEach((q, i) => {
+                let opts = Array.isArray(q.options) ? q.options : Object.values(q.options || {});
+                wrap.innerHTML += `
+                    <div class="p-5 sm:p-7 cyber-card rounded-[24px] sm:rounded-[32px] space-y-4">
+                        <p class="font-black text-white text-base leading-snug"><span class="text-fuchsia-400">${i + 1}.</span> ${q.q}</p>
+                        <div class="space-y-2.5">
+                            ${opts.map((opt, oIdx) => {
+                                let optText = typeof opt === 'string' ? opt : (opt?.text || opt?.val || Object.values(opt || {})[0] || '');
+                                optText = String(optText).replace(/^[A-Ca-c][\)\.\:\-\s]+/g, '').trim();
+                                return `
+                                <label class="option-choice flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl border border-purple-500/25 bg-slate-950/60 hover:bg-slate-950/80 cursor-pointer font-bold text-sm transition">
+                                    <input type="radio" name="stu_q_${i}" value="${oIdx}" class="w-4 h-4 text-fuchsia-500 focus:ring-0">
+                                    <span class="text-slate-200">${['A', 'B', 'C'][oIdx]}) ${escapeHtml(optText)}</span>
+                                </label>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function startTimer(seconds) {
+            let remain = seconds;
+            examTimerInterval = setInterval(() => {
+                remain--;
+                const m = Math.floor(remain / 60);
+                const s = remain % 60;
+                document.getElementById('exam-timer-text').innerText = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+                if (remain <= 0) {
+                    clearInterval(examTimerInterval);
+                    submitStudentWork();
+                }
+            }, 1000);
+        }
+
+        async function submitStudentWork() {
+            if (examTimerInterval) clearInterval(examTimerInterval);
+
+            let score = 0, total = 0, percentage = 0, answers = [];
+
+            if (currentActiveTest.type === 'essay') {
+                const text = document.getElementById('essay-text').value.trim();
+                answers = [{ essay: text }];
+                score = 100; total = 100; percentage = 100;
+            } else {
+                total = currentActiveTest.data.length;
+                currentActiveTest.data.forEach((q, i) => {
+                    const sel = document.querySelector(`input[name="stu_q_${i}"]:checked`);
+                    const chosen = sel ? parseInt(sel.value) : -1;
+                    if (chosen === q.correct) score++;
+                    answers.push({ qIndex: i, chosen, correct: q.correct });
+                });
+                percentage = Math.round((score / total) * 100);
+            }
+
+            showLoading(true, "Natijangiz saqlanmoqda...");
+            try {
+                await apiCall('/api/results', 'POST', {
+                    test_code: currentActiveTest.code,
+                    student_name: currentStudentInfo.name,
+                    student_class: currentStudentInfo.sClass,
+                    score, total, percentage, answers
+                });
+                showLoading(false);
+
+                document.getElementById('student-exam-box').classList.add('hidden');
+                document.getElementById('student-result-box').classList.remove('hidden');
+                document.getElementById('res-student-info').innerText = `${currentStudentInfo.name} (${currentStudentInfo.sClass})`;
+                refreshIcons();
+            } catch (e) {
+                showLoading(false);
+                showToast("Natijani saqlashda xatolik!", true);
+            }
+        }
+
+        // 2. ADMIN PANEL
+        async function handleAdminLogin(e) {
+            e.preventDefault();
+            const pin = document.getElementById('admin-pin-input').value.trim();
+
+            showLoading(true, "Tekshirilmoqda...");
+            try {
+                const res = await apiCall('/api/admin/verify-pin', 'POST', { pin });
+                showLoading(false);
+
+                if (res && res.success) {
+                    sessionAdminPin = pin;
+                    localStorage.setItem('edusmart_cached_pin', pin);
+                    document.getElementById('admin-auth-box').classList.add('hidden');
+                    document.getElementById('admin-dashboard-box').classList.remove('hidden');
+                    setAdminTab('requests');
+                    loadBackgroundSettingsToAdmin();
+                    showToast("Admin panelga kirildi!");
+                    refreshIcons();
+                } else {
+                    showToast(res.message || "Parol noto'g'ri!", true);
+                }
+            } catch (err) {
+                showLoading(false);
+                if (pin === sessionAdminPin) {
+                    document.getElementById('admin-auth-box').classList.add('hidden');
+                    document.getElementById('admin-dashboard-box').classList.remove('hidden');
+                    setAdminTab('requests');
+                    loadBackgroundSettingsToAdmin();
+                    showToast("Admin panelga kirildi!");
+                } else {
+                    showToast("Parol noto'g'ri!", true);
+                }
+            }
+        }
+
+        function logoutAdmin() {
+            document.getElementById('admin-dashboard-box').classList.add('hidden');
+            document.getElementById('admin-auth-box').classList.remove('hidden');
+            document.getElementById('admin-pin-input').value = "";
+            refreshIcons();
+        }
+
+        function setAdminTab(tab) {
+            document.getElementById('admin-sec-requests').classList.toggle('hidden', tab !== 'requests');
+            document.getElementById('admin-sec-backgrounds').classList.toggle('hidden', tab !== 'backgrounds');
+            document.getElementById('admin-sec-gemini').classList.toggle('hidden', tab !== 'gemini');
+            document.getElementById('admin-sec-password').classList.toggle('hidden', tab !== 'password');
+            document.getElementById('admin-sec-status').classList.toggle('hidden', tab !== 'status');
+
+            document.getElementById('atab-btn-requests').className = tab === 'requests' ? "px-3.5 sm:px-4 py-2 bg-fuchsia-500/20 text-fuchsia-300 rounded-xl font-black text-xs transition border border-fuchsia-500/30 flex items-center gap-1.5" : "px-3.5 sm:px-4 py-2 text-slate-400 hover:text-white rounded-xl font-bold text-xs transition flex items-center gap-1.5";
+            document.getElementById('atab-btn-backgrounds').className = tab === 'backgrounds' ? "px-3.5 sm:px-4 py-2 bg-fuchsia-500/20 text-fuchsia-300 rounded-xl font-black text-xs transition border border-fuchsia-500/30 flex items-center gap-1.5" : "px-3.5 sm:px-4 py-2 text-slate-400 hover:text-white rounded-xl font-bold text-xs transition flex items-center gap-1.5";
+            document.getElementById('atab-btn-gemini').className = tab === 'gemini' ? "px-3.5 sm:px-4 py-2 bg-fuchsia-500/20 text-fuchsia-300 rounded-xl font-black text-xs transition border border-fuchsia-500/30 flex items-center gap-1.5" : "px-3.5 sm:px-4 py-2 text-slate-400 hover:text-white rounded-xl font-bold text-xs transition flex items-center gap-1.5";
+            document.getElementById('atab-btn-password').className = tab === 'password' ? "px-3.5 sm:px-4 py-2 bg-fuchsia-500/20 text-fuchsia-300 rounded-xl font-black text-xs transition border border-fuchsia-500/30 flex items-center gap-1.5" : "px-3.5 sm:px-4 py-2 text-slate-400 hover:text-white rounded-xl font-bold text-xs transition flex items-center gap-1.5";
+            document.getElementById('atab-btn-status').className = tab === 'status' ? "px-3.5 sm:px-4 py-2 bg-rose-500/20 text-rose-300 rounded-xl font-black text-xs transition border border-rose-500/30 flex items-center gap-1.5" : "px-3.5 sm:px-4 py-2 text-slate-400 hover:text-white rounded-xl font-bold text-xs transition flex items-center gap-1.5";
+
+            if (tab === 'backgrounds') {
+                loadBackgroundSettingsToAdmin();
+            }
+            refreshIcons();
+        }
+
+        // TIZIM PAROLINI O'ZGARTIRISH
+        async function changeSystemPassword(e) {
+            e.preventDefault();
+            const oldPin = document.getElementById('sys-old-pin').value.trim();
+            const newPin = document.getElementById('sys-new-pin').value.trim();
+
+            if (!oldPin || !newPin) return showToast("Ikkala parol maydonini ham to'ldiring!", true);
+            if (newPin.length < 4) return showToast("Yangi parol kamida 4 ta belgidan iborat bo'lsin!", true);
+
+            showLoading(true, "Parol yangilanmoqda...");
+            try {
+                const res = await apiCall('/api/admin/change-pin', 'POST', {
+                    currentPin: oldPin,
+                    newPin: newPin
+                });
+                showLoading(false);
+
+                if (res && res.success) {
+                    sessionAdminPin = newPin;
+                    localStorage.setItem('edusmart_cached_pin', newPin);
+                    document.getElementById('sys-old-pin').value = "";
+                    document.getElementById('sys-new-pin').value = "";
+                    showToast(res.message || "Tizim paroli muvaffaqiyatli o'zgartirildi!");
+                } else {
+                    showToast(res.message || "Joriy parol noto'g'ri!", true);
+                }
+            } catch (err) {
+                showLoading(false);
+                showToast("Server bilan aloqada xatolik!", true);
+            }
+        }
+
+        // BACKGROUND SOZLAMALARI
+        function toggleBgUrlPlaceholder() {
+            const isVideo = document.querySelector('input[name="admin-bg-type"]:checked').value === 'video';
+            const label = document.getElementById('bg-url-label');
+            const input = document.getElementById('admin-bg-url-input');
+
+            if (isVideo) {
+                label.innerText = "Animatsiyali Video URL (MP4 / WebM, 1 daqiqagacha)";
+                input.placeholder = "https://.../video.mp4";
+            } else {
+                label.innerText = "Rasm URL manzili (1920x1080 tavsiya etiladi)";
+                input.placeholder = "https://... rasm linki yoki fon.jpg";
+            }
+        }
+
+        function loadBackgroundSettingsToAdmin() {
+            const typeRadios = document.querySelectorAll('input[name="admin-bg-type"]');
+            typeRadios.forEach(r => { r.checked = (r.value === currentBgType); });
+            document.getElementById('admin-bg-url-input').value = currentBgUrl || '';
+            toggleBgUrlPlaceholder();
+        }
+
+        async function saveBackgroundSettings() {
+            const bgTypeEl = document.querySelector('input[name="admin-bg-type"]:checked');
+            const bgUrl = document.getElementById('admin-bg-url-input').value.trim();
+            const bg_type = bgTypeEl ? bgTypeEl.value : 'image';
+
+            localStorage.setItem('edusmart_bg_type', bg_type);
+            localStorage.setItem('edusmart_bg_url', bgUrl);
+            applyBackground(bg_type, bgUrl);
+
+            showLoading(true, "Fon sozlamalari saqlanmoqda...");
+            try {
+                await apiCall('/api/admin/background-settings', 'POST', {
+                    bg_type,
+                    bg_url: bgUrl,
+                    adminPin: sessionAdminPin
+                });
+                showLoading(false);
+                showToast("Yangi fon muvaffaqiyatli saqlandi!");
+            } catch (err) {
+                showLoading(false);
+                showToast("Fon faollashtirildi!");
+            }
+        }
+
+        // GEMINI CHECKER
+        async function checkGeminiApiStatus() {
+            const resultBox = document.getElementById('api-checker-result');
+            showLoading(true, "API kalit tekshirilmoqda...");
+            try {
+                const data = await apiCall('/api/admin/check-gemini', 'POST', { adminPin: sessionAdminPin });
+                showLoading(false);
+                resultBox.classList.remove('hidden');
+
+                if (data.status === 'active') {
+                    resultBox.className = "p-3.5 rounded-xl text-xs font-bold leading-relaxed border bg-emerald-950/40 border-emerald-500/40 text-emerald-300";
+                    resultBox.innerText = data.message;
+                } else if (data.status === 'limit') {
+                    resultBox.className = "p-3.5 rounded-xl text-xs font-bold leading-relaxed border bg-amber-950/40 border-amber-500/40 text-amber-300";
+                    resultBox.innerText = "⚠️ " + data.message;
+                } else {
+                    resultBox.className = "p-3.5 rounded-xl text-xs font-bold leading-relaxed border bg-rose-950/40 border-rose-500/40 text-rose-300";
+                    resultBox.innerText = "❌ " + data.message;
+                }
+            } catch (err) {
+                showLoading(false);
+                showToast("Xatolik yuz berdi!", true);
+            }
+        }
+
+        async function saveGeminiApiKey() {
+            const key = document.getElementById('gemini-key-input').value.trim();
+            if (!key) return showToast("API kalitni kiriting!", true);
+
+            showLoading(true, "Saqlanmoqda...");
+            try {
+                const data = await apiCall('/api/admin/gemini-key', 'POST', { apiKey: key, adminPin: sessionAdminPin });
+                showLoading(false);
+                if (data.success) {
+                    showToast(data.message);
+                    document.getElementById('gemini-key-input').value = "";
+                    checkGeminiApiStatus();
+                }
+            } catch (err) {
+                showLoading(false);
+                showToast("Xatolik!", true);
+            }
+        }
+
+        // 3. AI TEST GENERATORI
+        async function generateTestWithAI() {
+            const subject = document.getElementById('tc-subject').value.trim();
+            const topic = document.getElementById('tc-topic').value.trim();
+            const details = document.getElementById('ai-q-details').value.trim();
+            const count = document.getElementById('ai-q-count').value;
+
+            if (!subject || !topic) {
+                return showToast("Iltimos, avval Fan va Mavzu nomini kiriting!", true);
+            }
+
+            showLoading(true, "AI test savollarini tuzmoqda (5-10 soniya)...");
+            try {
+                const data = await apiCall('/api/ai/generate-test', 'POST', {
+                    subject, topic, details, count, adminPin: sessionAdminPin
+                });
+                showLoading(false);
+
+                if (!data.success) {
+                    return showToast(data.message, true);
+                }
+
+                manualQuestionsList = data.questions;
+                renderManualFields();
+                showToast(`🎉 ${manualQuestionsList.length} ta savol muvaffaqiyatli tuzildi!`);
+            } catch (err) {
+                showLoading(false);
+                showToast(err.message, true);
+            }
+        }
+
+        async function loadAdminRequests() {
+            const code = document.getElementById('admin-search-req-code').value.trim();
+            if (!code) return showToast("Test kodini kiriting!", true);
+
+            activeAdminTestCode = code;
+            showLoading(true, "So'rovlar yuklanmoqda...");
+            try {
+                const data = await apiCall(`/api/admin/requests/${code}`);
+                showLoading(false);
+
+                if (!data.success) return showToast("Yuklashda xatolik!", true);
+
+                document.getElementById('batch-control-bar').classList.remove('hidden');
+                document.getElementById('admin-requests-wrapper').classList.remove('hidden');
+
+                const tbody = document.getElementById('admin-requests-tbody');
+                tbody.innerHTML = "";
+
+                if (data.requests.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 font-bold">Ushbu testga hali hech kim ruxsat so'ramagan</td></tr>`;
+                    return;
+                }
+
+                data.requests.forEach(r => {
+                    let badge = '<span class="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-black">Kutilmoqda ⏳</span>';
+                    if (r.status === 'approved') badge = '<span class="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-black">Tasdiqlangan ✅</span>';
+                    if (r.status === 'rejected') badge = '<span class="px-2.5 py-1 bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-lg text-xs font-black">Rad etilgan ❌</span>';
+                    if (r.status === 'review') badge = '<span class="px-2.5 py-1 bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-lg text-xs font-black">Ko\'rib chiqishda 🔍</span>';
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-950/40 transition">
+                            <td class="p-4 sm:p-5 font-black text-white">${r.student_name}</td>
+                            <td class="p-4 sm:p-5">${r.student_class}</td>
+                            <td class="p-4 sm:p-5">${badge}</td>
+                            <td class="p-4 sm:p-5 text-right space-x-1.5">
+                                <button onclick="updateSingleRequest(${r.id}, 'approved')" class="px-3 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-black transition">Tasdiqlash</button>
+                                <button onclick="updateSingleRequest(${r.id}, 'review')" class="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-black transition">Ko'rib chiq</button>
+                                <button onclick="updateSingleRequest(${r.id}, 'rejected')" class="px-3 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 rounded-xl text-xs font-black transition">Rad etish</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                refreshIcons();
+            } catch (e) {
+                showLoading(false);
+                showToast("Server bilan ulanish uzildi!", true);
+            }
+        }
+
+        async function updateSingleRequest(id, status) {
+            showLoading(true, "Yangilanmoqda...");
+            try {
+                await apiCall('/api/admin/update-request', 'POST', { id, status, adminPin: sessionAdminPin });
+                showLoading(false);
+                showToast("Status yangilandi!");
+                loadAdminRequests();
+            } catch (e) {
+                showLoading(false);
+                showToast("Xatolik!", true);
+            }
+        }
+
+        async function updateAllRequests(status) {
+            if (!activeAdminTestCode) return;
+            const names = { approved: "Tasdiqlansinmi", review: "Ko'rib chiqishga yuborilsinmi", rejected: "Rad etilsinmi" };
+            if (!confirm(`Barcha o'quvchilar ${names[status]}?`)) return;
+
+            showLoading(true, "Barchasi yangilanmoqda...");
+            try {
+                await apiCall('/api/admin/update-all-requests', 'POST', { test_code: activeAdminTestCode, status, adminPin: sessionAdminPin });
+                showLoading(false);
+                showToast("Barcha so'rovlar yangilandi!");
+                loadAdminRequests();
+            } catch (e) {
+                showLoading(false);
+                showToast("Xatolik!", true);
+            }
+        }
+
+        async function clearAdminRequests() {
+            if (!activeAdminTestCode) return;
+            if (!confirm("Barcha so'rovlar ro'yxati tozalanadi. Tasdiqlangan o'quvchilar testni bemalol davom ettiraveradi (chiqib ketmaydi). Tozalansinmi?")) return;
+
+            showLoading(true, "So'rovlar tozalanmoqda...");
+            try {
+                const data = await apiCall('/api/admin/clear-requests', 'POST', { test_code: activeAdminTestCode, adminPin: sessionAdminPin });
+                showLoading(false);
+                if (data.success) {
+                    showToast("So'rovlar tozalandi!");
+                    loadAdminRequests();
+                }
+            } catch (e) {
+                showLoading(false);
+                showToast("Xatolik!", true);
+            }
+        }
+
+        async function changeSiteStatus(status) {
+            const reason = document.getElementById('admin-site-reason').value.trim();
+            showLoading(true, "Holat o'zgartirilmoqda...");
+            try {
+                await apiCall('/api/site-status', 'POST', { status, reason, adminPin: sessionAdminPin });
+                showLoading(false);
+                showToast(`Sayt holati: ${status === 'active' ? 'Yoniq (Faol)' : 'O\'chirilgan'}`);
+                
+                const ind = document.getElementById('site-status-indicator');
+                const txt = document.getElementById('site-status-text');
+                if (status === 'active') {
+                    ind.className = "w-4 h-4 rounded-full bg-emerald-400 animate-pulse";
+                    txt.innerText = "Sayt Hozirda Faol va Ishlamoqda";
+                } else {
+                    ind.className = "w-4 h-4 rounded-full bg-rose-500 animate-pulse";
+                    txt.innerText = "Sayt Hozirda Vaqtincha O'chirilgan";
+                }
+            } catch (e) {
+                showLoading(false);
+                showToast("Xatolik!", true);
+            }
+        }
+
+        // 4. NATIJALAR
+        async function fetchTestResults() {
+            const raw = document.getElementById('search-result-code').value.trim();
+            if (!raw) return showToast("Kodni kiriting!", true);
+
+            showLoading(true, "Natijalar olinmoqda...");
+            try {
+                const data = await apiCall(`/api/results/${raw}`);
+                showLoading(false);
+
+                if (!data.success) return showToast("Hech qanday natija topilmadi!", true);
+
+                currentLoadedResults = data;
+                document.getElementById('results-display-wrapper').classList.remove('hidden');
+
+                document.getElementById('res-meta-subject').innerText = data.test.subject;
+                document.getElementById('res-meta-topic').innerText = data.test.topic;
+                document.getElementById('res-meta-teacher').innerText = `Ustoz: ${data.test.teacher}`;
+
+                document.getElementById('kpi-total-students').innerText = data.students.length;
+                const avg = data.students.length ? Math.round(data.students.reduce((a, b) => a + b.percentage, 0) / data.students.length) : 0;
+                document.getElementById('kpi-avg-score').innerText = `${avg}%`;
+
+                const tbody = document.getElementById('students-table-body');
+                tbody.innerHTML = "";
+                if (data.students.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 font-bold">Bu testni hali hech kim topshirmagan</td></tr>`;
+                    return;
+                }
+
+                data.students.forEach((s, idx) => {
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-950/40 transition">
+                            <td class="p-4 sm:p-5 font-black text-white">${s.student_name}</td>
+                            <td class="p-4 sm:p-5">${s.student_class}</td>
+                            <td class="p-4 sm:p-5">${s.score} / ${s.total}</td>
+                            <td class="p-4 sm:p-5"><span class="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-black">${s.percentage}%</span></td>
+                            <td class="p-4 sm:p-5 text-right space-x-1.5">
+                                <button onclick="openInspectModal(${idx})" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-black transition">Tahlil 👁️</button>
+                                <button onclick="deleteSingleResult(${s.id}, '${s.student_name}')" class="px-3 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 rounded-xl text-xs font-black transition">O'chirish 🗑️</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                refreshIcons();
+            } catch (err) {
+                showLoading(false);
+                showToast("Serverga ulanishda xatolik!", true);
+            }
+        }
+
+        async function clearAllTestResults() {
+            const raw = document.getElementById('search-result-code').value.trim();
+            if (!raw) return;
+            if (!confirm("Diqqat! Ushbu testning BARCHA o'quvchilar natijalarini butunlay o'chirib yubormoqchimisiz?")) return;
+
+            showLoading(true, "Tozalanmoqda...");
+            try {
+                await apiCall(`/api/results/clear-all/${raw}`, 'DELETE');
+                showLoading(false);
+                showToast("Barcha natijalar tozalandi!");
+                fetchTestResults();
+            } catch (e) {
+                showLoading(false);
+                showToast("Xatolik!", true);
+            }
+        }
+
+        async function deleteSingleResult(id, name) {
+            if (!confirm(`${name}ning natijasini o'chirmoqchimisiz?`)) return;
+            showLoading(true, "O'chirilmoqda...");
+            try {
+                await apiCall(`/api/results/${id}`, 'DELETE');
+                showLoading(false);
+                showToast(`${name}ning natijasi o'chirildi!`);
+                fetchTestResults();
+            } catch (e) {
+                showLoading(false);
+                showToast("Xatolik!", true);
+            }
+        }
+
+        function openInspectModal(idx) {
+            const stu = currentLoadedResults.students[idx];
+            const test = currentLoadedResults.test;
+            document.getElementById('modal-student-name').innerText = `${stu.student_name} (${stu.student_class})`;
+            document.getElementById('modal-student-score').innerText = `To'plangan ball: ${stu.score} / ${stu.total} (${stu.percentage}%)`;
+
+            const rev = document.getElementById('modal-questions-review');
+            rev.innerHTML = "";
+
+            if (test.type === 'essay') {
+                rev.innerHTML = `<div class="p-5 bg-slate-950/60 rounded-2xl border border-purple-500/20 text-sm leading-relaxed font-medium text-slate-200 whitespace-pre-wrap">${stu.answers[0]?.essay || "Matn yozilmagan"}</div>`;
+            } else {
+                test.data.forEach((q, qI) => {
+                    const ans = stu.answers.find(a => a.qIndex === qI);
+                    const isRight = ans && ans.chosen === q.correct;
+                    let opts = Array.isArray(q.options) ? q.options : Object.values(q.options || {});
+                    rev.innerHTML += `
+                        <div class="p-4 rounded-2xl border ${isRight ? 'bg-emerald-950/30 border-emerald-500/40' : 'bg-rose-950/30 border-rose-500/40'} space-y-2">
+                            <p class="font-black text-xs ${isRight ? 'text-emerald-300' : 'text-rose-300'}">${qI + 1}. ${q.q}</p>
+                            <div class="text-xs space-y-1.5">
+                                ${opts.map((opt, optI) => {
+                                    let optText = typeof opt === 'string' ? opt : (opt?.text || opt?.val || Object.values(opt || {})[0] || '');
+                                    optText = String(optText).replace(/^[A-Ca-c][\)\.\:\-\s]+/g, '').trim();
+                                    return `
+                                    <div class="p-2.5 rounded-xl font-bold ${optI === q.correct ? 'bg-emerald-500/30 text-emerald-200' : (ans && ans.chosen === optI ? 'bg-rose-500/30 text-rose-200' : 'text-slate-400')}">
+                                        ${['A', 'B', 'C'][optI]}) ${escapeHtml(optText)}
+                                    </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            document.getElementById('inspectModal').classList.remove('hidden');
+        }
+
+        function closeInspectModal() { document.getElementById('inspectModal').classList.add('hidden'); }
+
+        // 5. TEST TUZISH
+        function toggleTypeView() {
+            const type = document.getElementById('tc-type').value;
+            document.getElementById('ai-generator-params-box').classList.toggle('hidden', type !== 'ai-generator');
+            document.getElementById('essay-params-box').classList.toggle('hidden', type !== 'essay');
+            document.getElementById('manual-questions-box').classList.toggle('hidden', type === 'essay');
+            if (type === 'manual-test' && manualQuestionsList.length === 0) addManualQuestionField();
+            refreshIcons();
+        }
+
+        function addManualQuestionField() {
+            manualQuestionsList.push({ q: "", options: ["", "", ""], correct: 0 });
+            renderManualFields();
+        }
+
+        function renderManualFields() {
+            const box = document.getElementById('manual-list');
+            box.innerHTML = "";
+            manualQuestionsList.forEach((item, i) => {
+                if (!Array.isArray(item.options)) item.options = ["", "", ""];
+                while (item.options.length < 3) item.options.push("");
+
+                box.innerHTML += `
+                    <div class="p-5 cyber-card rounded-2xl border border-purple-500/30 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="font-black text-xs text-fuchsia-400 uppercase tracking-wider">${i + 1}-Savol</span>
+                            ${manualQuestionsList.length > 1 ? `<button type="button" onclick="manualQuestionsList.splice(${i}, 1); renderManualFields();" class="text-rose-400 font-bold text-xs hover:underline">O'chirish</button>` : ''}
+                        </div>
+                        <input type="text" placeholder="Savol matnini kiriting..." value="${escapeHtml(item.q)}" oninput="manualQuestionsList[${i}].q = this.value" class="w-full px-4 py-2.5 rounded-xl border border-purple-500/30 text-sm font-bold bg-slate-950/60 text-white placeholder-slate-500 focus:outline-none focus:border-fuchsia-400">
+                        <div class="space-y-2 mt-2">
+                            ${['A', 'B', 'C'].map((opt, optIdx) => `
+                                <div class="flex items-center gap-2.5">
+                                    <input type="radio" name="m_correct_${i}" ${item.correct === optIdx ? 'checked' : ''} onchange="manualQuestionsList[${i}].correct = ${optIdx}" class="w-4 h-4 text-fuchsia-500 cursor-pointer">
+                                    <span class="font-black text-xs w-5 text-fuchsia-300">${opt})</span>
+                                    <input type="text" placeholder="Variant ${opt} matni" value="${escapeHtml(item.options[optIdx])}" oninput="manualQuestionsList[${i}].options[${optIdx}] = this.value" class="flex-grow px-3 py-2 rounded-xl border border-purple-500/30 text-xs font-semibold bg-slate-950/60 text-white placeholder-slate-500 focus:outline-none focus:border-fuchsia-400">
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            refreshIcons();
+        }
+        addManualQuestionField();
+
+        async function createTestWorkflow() {
+            const teacher = document.getElementById('tc-teacher').value.trim();
+            const subject = document.getElementById('tc-subject').value.trim();
+            const topic = document.getElementById('tc-topic').value.trim();
+            const type = document.getElementById('tc-type').value;
+            const timer = parseInt(document.getElementById('tc-timer').value) || 0;
+
+            if (!teacher || !subject || !topic) return showToast("Barcha maydonlarni to'ldiring!", true);
+
+            let questions = [];
+            if (type === 'manual-test' || type === 'ai-generator') {
+                for (let i = 0; i < manualQuestionsList.length; i++) {
+                    const qItem = manualQuestionsList[i];
+                    if (!qItem.q.trim() || !qItem.options[0].trim() || !qItem.options[1].trim() || !qItem.options[2].trim()) {
+                        return showToast(`${i + 1}-savol variantlarini to'liq to'ldiring!`, true);
+                    }
+                }
+                questions = manualQuestionsList;
+            } else {
+                const guide = document.getElementById('tc-essay-guide').value.trim();
+                if (!guide) return showToast("Insho yo'riqnomasini yozing!", true);
+                questions = [{ guide }];
+            }
+
+            showLoading(true, "Saqlanmoqda...");
+            const code = Math.floor(1000 + Math.random() * 9000).toString();
+            try {
+                const d = await apiCall('/api/tests', 'POST', { code, teacher, subject, topic, type: (type === 'essay' ? 'essay' : 'manual-test'), timer, data: questions });
+                showLoading(false);
+                if (d.success) {
+                    document.getElementById('res-test-code').innerText = code;
+                    document.getElementById('res-result-code').innerText = `${code}result`;
+                    document.getElementById('codeResultModal').classList.remove('hidden');
+                    showToast("Test saqlandi!");
+                    refreshIcons();
+                }
+            } catch (e) {
+                showLoading(false);
+                showToast("Xatolik!", true);
+            }
+        }
+
+        // 6. SEYF
+        function setVaultMode(m) {
+            vaultMode = m;
+            document.getElementById('vault-owner-field').classList.toggle('hidden', m === 'login');
+            document.getElementById('btn-vmode-login').className = m === 'login' ? "text-xs font-black text-fuchsia-400 border-b-2 border-fuchsia-400 pb-1.5 uppercase tracking-wider" : "text-xs font-bold text-slate-400 pb-1.5 uppercase tracking-wider";
+            document.getElementById('btn-vmode-reg').className = m === 'register' ? "text-xs font-black text-fuchsia-400 border-b-2 border-fuchsia-400 pb-1.5 uppercase tracking-wider" : "text-xs font-bold text-slate-400 pb-1.5 uppercase tracking-wider";
+        }
+
+        async function handleVaultAuth(e) {
+            e.preventDefault();
+            const pin = document.getElementById('v-pin').value.trim();
+            const owner = document.getElementById('v-owner').value.trim();
+            if (pin.length !== 6) return showToast("PIN kod 6 xonali bo'lishi kerak!", true);
+
+            showLoading(true, "Seyf ochilmoqda...");
+            try {
+                const endpoint = vaultMode === 'login' ? '/api/vault/login' : '/api/vault/register';
+                const body = vaultMode === 'login' ? { pin } : { pin, owner };
+                const data = await apiCall(endpoint, 'POST', body);
+                showLoading(false);
+                if (!data.success) return showToast(data.message, true);
+
+                if (vaultMode === 'register') {
+                    showToast("Seyf ochildi! Kirish bo'limidan kiring.");
+                    setVaultMode('login');
+                } else {
+                    activeVaultData = data.vault;
+                    document.getElementById('vault-auth-box').classList.add('hidden');
+                    document.getElementById('vault-content-box').classList.remove('hidden');
+                    document.getElementById('v-profile-owner').innerText = activeVaultData.owner || "Ustoz";
+                    renderVaultNotes();
+                }
+                refreshIcons();
+            } catch (e) {
+                showLoading(false);
+                showToast("Xatolik!", true);
+            }
+        }
+
+        function renderVaultNotes() {
+            const list = document.getElementById('vault-notes-list');
+            list.innerHTML = "";
+            if (!activeVaultData.notes || activeVaultData.notes.length === 0) {
+                list.innerHTML = `<p class="text-xs text-slate-400 text-center py-5 font-bold">Seyfda qaydlar yo'q</p>`;
+                return;
+            }
+            activeVaultData.notes.forEach(n => {
+                list.innerHTML += `
+                    <div class="p-3.5 cyber-card rounded-2xl flex items-center justify-between border border-purple-500/20">
+                        <div>
+                            <span class="font-black text-sm text-fuchsia-400 uppercase tracking-wider font-mono">${n.code}</span>
+                            <p class="text-xs font-bold text-slate-300">${n.title}</p>
+                        </div>
+                        <button onclick="document.getElementById('search-result-code').value='${n.code}result'; switchTab('teacher-results'); fetchTestResults();" class="px-3 py-1.5 bg-fuchsia-500/20 hover:bg-fuchsia-500/30 text-fuchsia-300 border border-fuchsia-500/30 rounded-xl text-xs font-black transition">Natijalar</button>
+                    </div>
+                `;
+            });
+            refreshIcons();
+        }
+
+        async function saveNoteToVault() {
+            const code = document.getElementById('v-note-code').value.trim();
+            const title = document.getElementById('v-note-title').value.trim();
+            if (!code || !title) return showToast("Kod va eslatmani kiriting!", true);
+
+            activeVaultData.notes.push({ code, title });
+            showLoading(true, "Saqlanmoqda...");
+            try {
+                await apiCall('/api/vault/save-note', 'POST', { pin: activeVaultData.pin, notes: activeVaultData.notes });
+                showLoading(false);
+                document.getElementById('v-note-code').value = "";
+                document.getElementById('v-note-title').value = "";
+                renderVaultNotes();
+                showToast("Qayd saqlandi!");
+            } catch (e) {
+                showLoading(false);
+                showToast("Xatolik!", true);
+            }
+        }
+
+        function lockVault() {
+            activeVaultData = null;
+            document.getElementById('vault-content-box').classList.add('hidden');
+            document.getElementById('vault-auth-box').classList.remove('hidden');
+            document.getElementById('v-pin').value = "";
+            refreshIcons();
+        }
+
+        function copyText(id) {
+            const txt = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(txt);
+            showToast("Nusxalandi: " + txt);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            applyBackground(currentBgType, currentBgUrl);
+            checkSiteStatus();
+            refreshIcons();
+        });
+    </script>
+</body>
+</html>
